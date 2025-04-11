@@ -60,7 +60,7 @@ export default {
     }
   },
   created() {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('https://probable-enigma-4g665rjrv9gh5qp7-3000.app.github.dev', {
       auth: { token: localStorage.getItem('token') }
     });
     this.setupSocketListeners();

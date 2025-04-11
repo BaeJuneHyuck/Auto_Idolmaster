@@ -21,7 +21,7 @@ export default {
   methods: {
     async login() {
       try {
-        const res = await axios.post('http://localhost:3000/login', {
+        const res = await axios.post('https://probable-enigma-4g665rjrv9gh5qp7-3000.app.github.dev/login', {
           username: this.username,
           password: this.password
         });
@@ -34,7 +34,7 @@ export default {
     },
     async register() {
       try {
-        await axios.post('http://localhost:3000/register', {
+        await axios.post('https://probable-enigma-4g665rjrv9gh5qp7-3000.app.github.dev/register', {
           username: this.username,
           password: this.password
         });

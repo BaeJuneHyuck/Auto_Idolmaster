@@ -4,22 +4,30 @@ const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 const User = require('./models/User');
 const Room = require('./models/Room');
 const Message = require('./models/Message');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: 'https://probable-enigma-4g665rjrv9gh5qp7-5173.app.github.dev', // 프론트엔드 URL
+    methods: ['GET', 'POST'],
+    credentials: true // 인증 관련 헤더 허용 (필요 시)
+  }
+});
 
+app.use(cors({
+  origin: 'https://probable-enigma-4g665rjrv9gh5qp7-5173.app.github.dev',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 
-// .env 파일 로드
 require('dotenv').config();
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB 연결 성공'));
+mongoose.connect(process.env.MONGODB_URI).then(() => console.log('MongoDB 연결 성공'));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const gameStates = new Map();
@@ -28,14 +36,21 @@ const cardPool = {
   'archer': { speed: 5, hp: 30, attack: 15, passive: 'range', active: 'shoot' }
 };
 
+app.get('/', (req, res) => {
+  res.send('백엔드 서버가 실행 중입니다.');
+});
+
 app.post('/register', async (req, res) => {
+  console.log('회원가입 요청 수신:', req.body);
   const { username, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = new User({ username, password: hashedPassword });
     await user.save();
+    console.log('회원가입 성공:', username);
     res.status(201).json({ message: '회원가입 성공' });
   } catch (err) {
+    console.error('회원가입 실패:', err);
     res.status(400).json({ message: '이미 존재하는 사용자' });
   }
 });
